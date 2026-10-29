@@ -26,7 +26,7 @@ Then open http://localhost:8765.
 
 ## Put it on an iPhone
 
-1. Host `docs/` on GitHub Pages (Settings → Pages → Deploy from a branch → `main`, folder `/docs`).
+1. Host `docs/` on GitHub Pages (Settings → Pages → Deploy from a branch → `main`, folder `/docs`). It is live at https://rohninbarrette.github.io/Fretwise/.
 2. Open the Pages address in Safari on the iPhone.
 3. Tap Share → Add to Home Screen.
 
