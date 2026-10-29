@@ -815,7 +815,7 @@ function inversionLabel(ch, bassPc){
 }
 
 // ---------- audio ----------
-let actx = null, master = null;
+let actx = null, master = null, audioStale = false;
 // Karplus-Strong plucked string: a short noise burst fed through a tuned delay loop.
 // Rich in harmonics, so low strings stay audible on phone speakers.
 function ksData(midi, sr){
@@ -852,19 +852,36 @@ function pluckAt(midi, t, string, vel = 0.55, len){
   if (string != null) voices[string] = {src, g};
 }
 const pluck = (midi, when, string, vel, len) => pluckAt(midi, actx.currentTime + when, string, vel, len);
-// iOS only unlocks audio inside a tap, and the "playback" session lets it sound with the silent switch on
+// iOS only unlocks audio inside a tap, and the "playback" session lets it sound with the silent switch on.
+// After the microphone was used or the app was in the background, iOS can leave the old context silent
+// even when it says it is running, so it is rebuilt on the next tap instead of resumed.
 function audio(){
   try {
+    if (actx && (audioStale || actx.state === 'closed' || actx.state === 'interrupted')){
+      clockStop();
+      try { actx.close(); } catch (e) {}
+      actx = null; voices.length = 0;
+    }
     if (!actx){
-      if (navigator.audioSession) navigator.audioSession.type = 'playback';
+      audioStale = false;
+      if (navigator.audioSession && !tun.on) navigator.audioSession.type = 'playback';
       actx = new (window.AudioContext || window.webkitAudioContext)();
       master = actx.createDynamicsCompressor();   // keeps six summed strings from clipping
       master.connect(actx.destination);
+      for (const k in ksCache) if (ksCache[k].sampleRate !== actx.sampleRate) delete ksCache[k];
     }
-    if (actx.state !== 'running') actx.resume();
+    if (actx.state !== 'running'){
+      const p = actx.resume();
+      if (p && p.catch) p.catch(() => { audioStale = true; });
+    }
+    // a one-sample silent sound started inside the tap is what unlocks output on some iOS versions
+    const s = actx.createBufferSource();
+    s.buffer = actx.createBuffer(1, 1, actx.sampleRate); s.connect(actx.destination); s.start();
   } catch (e) {}
   return actx;
 }
+// iOS stops web audio in the background; start fresh when the app comes back
+document.addEventListener('visibilitychange', () => { if (document.hidden && actx){ clockStop(); audioStale = true; } });
 function play(fr, single){
   try {
     if (!audio()) return;
@@ -1989,18 +2006,26 @@ function renderTuner(msg){
 }
 async function startTuner(){
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ renderTuner('This browser does not allow microphone access on this page.'); return; }
-  if (!audio()) return;
+  // the microphone gets its own context, made here inside the tap so iOS lets it run. Playback stays on
+  // the main context, which is rebuilt afterwards because opening the mic changes the iPhone's audio hardware.
+  let ctx;
   try {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (ctx.state !== 'running') ctx.resume();
     if (navigator.audioSession) navigator.audioSession.type = 'play-and-record';
     tun.stream = await navigator.mediaDevices.getUserMedia({audio: {echoCancellation: false, noiseSuppression: false, autoGainControl: false}});
   } catch (e) {
+    if (ctx) try { ctx.close(); } catch (e2) {}
     if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    audioStale = true;
     renderTuner('The microphone could not be opened on this page. Allow microphone access for this site in your browser settings and try again. (The preview on claude.ai cannot use the microphone; the installed app can.)');
     return;
   }
-  if (actx.state !== 'running') actx.resume();
-  tun.src = actx.createMediaStreamSource(tun.stream);
-  tun.an = actx.createAnalyser(); tun.an.fftSize = 4096;
+  clockStop(); audioStale = true;
+  tun.ctx = ctx;
+  if (ctx.state !== 'running') ctx.resume();
+  tun.src = ctx.createMediaStreamSource(tun.stream);
+  tun.an = ctx.createAnalyser(); tun.an.fftSize = 4096;
   tun.src.connect(tun.an);
   tun.buf = new Float32Array(tun.an.fftSize);
   tun.on = true; tun.hist = []; renderTuner(); tunLoop();
@@ -2009,8 +2034,10 @@ function stopTuner(){
   tun.on = false; cancelAnimationFrame(tun.raf);
   if (tun.stream) tun.stream.getTracks().forEach(t => t.stop());
   if (tun.src) tun.src.disconnect();
-  tun.stream = tun.src = null;
+  if (tun.ctx) try { tun.ctx.close(); } catch (e) {}
+  tun.stream = tun.src = tun.ctx = null;
   if (navigator.audioSession) navigator.audioSession.type = 'playback';
+  audioStale = true;
   renderTuner();
 }
 function tunLoop(){
@@ -2018,7 +2045,7 @@ function tunLoop(){
   tun.raf = requestAnimationFrame(tunLoop);
   const now = Date.now(); if (now - tun.last < 70) return; tun.last = now;
   tun.an.getFloatTimeDomainData(tun.buf);
-  const hz = yin(tun.buf, actx.sampleRate);
+  const hz = yin(tun.buf, tun.ctx.sampleRate);
   if (hz > 0){ tun.hist.push(hz); if (tun.hist.length > 5) tun.hist.shift(); tun.miss = 0; }
   else if (++tun.miss > 8) tun.hist = [];
   const sorted = tun.hist.slice().sort((a, b) => a - b);
