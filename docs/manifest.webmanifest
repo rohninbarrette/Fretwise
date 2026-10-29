@@ -1,0 +1,29 @@
+{
+  "name": "Fretwise",
+  "short_name": "Fretwise",
+  "description": "Guitar chord finder, chord library, scales, circle of fifths, song sketchpad, tuner and practice tools.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eceee9",
+  "theme_color": "#eceee9",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
