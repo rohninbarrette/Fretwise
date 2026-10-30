@@ -7,7 +7,8 @@ A guitar app that runs in the browser and can be installed on an iPhone home scr
 - **Scales**: 29 scales in every key, on a full horizontal fretboard or one position at a time.
 - **Keys**: circle of fifths with every chord in the selected key and common progressions.
 - **Song**: build a chord chart, transpose it, play it back with strum patterns, save it, copy it, and see which scales to solo with.
-- **Practice**: metronome with tap tempo, strumming patterns, a microphone tuner and ear training.
+- **Practice**: metronome with tap tempo, strumming patterns and ear training.
+- **Tuner**: a full-screen microphone tuner with an LED arc display, in the style of a stompbox pedal tuner.
 - **Settings**: 17 tunings plus custom, capo, and left-handed mode.
 
 ## Files

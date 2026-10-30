@@ -359,16 +359,57 @@ input[type=range]{width:100%;accent-color:var(--accent);min-height:28px}
 .beats i{width:20px;height:20px;border-radius:50%;background:var(--surface-2);border:1.5px solid var(--line)}
 .beats i.acc{border-color:var(--muted)}
 .beats i.now{background:var(--accent);border-color:var(--accent)}
-.tun-note{font:700 64px var(--f-display);line-height:1;text-align:center;min-height:64px}
-.tun-note sub{font-size:22px;color:var(--muted);vertical-align:baseline;margin-left:2px}
-.meter{position:relative;height:38px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
-.meter::before{content:"";position:absolute;left:46%;right:46%;top:0;bottom:0;background:var(--accent-soft)}
-.meter::after{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--muted)}
-.needle{position:absolute;top:4px;bottom:4px;width:5px;margin-left:-2.5px;border-radius:3px;background:var(--muted);left:50%;z-index:1}
-.meter.ok .needle{background:var(--accent)}
-.meter.off .needle{opacity:0}
-@media (prefers-reduced-motion:no-preference){.needle{transition:left .12s}}
-.tun-read{display:flex;justify-content:space-between;gap:10px;font:500 13px var(--f-mono);color:var(--muted)}
+/* tuner: an LED display window, after the classic stompbox tuners */
+.tn-page{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tn-pedal{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:14px;
+  box-shadow:0 1px 0 var(--line),0 10px 24px -18px rgba(0,0,0,.5)}
+.tn-page .refs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}
+.tn-page .refs .btn{min-width:0;padding-left:0;padding-right:0}
+.tn-msg{margin:0;min-height:2.6em;text-align:center;font-size:14px;color:var(--muted)}
+.tn-jacks{display:flex;justify-content:space-between;font:600 11px var(--f-mono);letter-spacing:.14em;color:var(--muted);padding:0 4px}
+.tn-switch{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;min-height:96px;border-radius:16px;cursor:pointer;
+  border:1px solid var(--line);color:var(--ink);background-color:var(--surface-2);
+  background-image:repeating-linear-gradient(0deg,transparent 0 6px,rgba(0,0,0,.045) 6px 7px);
+  box-shadow:inset 0 -4px 0 rgba(0,0,0,.08),inset 0 1px 0 rgba(255,255,255,.06)}
+.tn-switch span{font:700 22px var(--f-display)}
+.tn-switch small{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.tn-switch.on{border-color:var(--accent);box-shadow:inset 0 2px 6px rgba(0,0,0,.15),0 0 0 1px var(--accent)}
+.tn-switch:active{transform:translateY(1px);box-shadow:inset 0 2px 6px rgba(0,0,0,.18)}
+.tn-switch:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.tn-win{--lcd:#161b19;--lcd-ink:#e6ebe7;--lcd-lab:#7f8a84;--lcd-off:#2c3431;--led:#f2c14e;--led-ok:#5cc2b5;
+  background:var(--lcd);color:var(--lcd-ink);border-radius:14px;padding:12px 14px 14px;
+  box-shadow:inset 0 2px 10px rgba(0,0,0,.55),0 0 0 4px var(--surface-2),0 0 0 5px var(--line)}
+:root[data-theme="dark"] .tn-win{--lcd:#0b0e0d;--lcd-off:#232a27}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tn-win{--lcd:#0b0e0d;--lcd-off:#232a27}}
+.tn-top{display:flex;align-items:center;justify-content:space-between;font:600 10px var(--f-mono);letter-spacing:.14em;color:var(--lcd-lab)}
+.tn-pow{display:flex;align-items:center;gap:6px}
+.tn-pow i{width:8px;height:8px;border-radius:50%;background:var(--lcd-off)}
+.tn-pow.on i{background:#ef6f5c;box-shadow:0 0 8px #ef6f5c}
+.tn-arrows{display:flex;align-items:center;gap:4px;font-size:15px;line-height:1}
+.tn-arrows b{color:var(--lcd-off);font-weight:400}
+.tn-arrows b.on{color:var(--led);text-shadow:0 0 8px var(--led)}
+.tn-arrows.ok b{color:var(--led-ok);text-shadow:0 0 8px var(--led-ok)}
+.tn-dial{position:relative;max-width:440px;margin:6px auto 0}
+.tn-dial svg{display:block;width:100%;height:auto;overflow:visible}
+.tn-dial .seg{stroke:var(--lcd-off);stroke-linecap:round}
+.tn-dial .seg.on{stroke:var(--led);filter:drop-shadow(0 0 4px var(--led))}
+.tn-dial .seg.on.ok{stroke:var(--led-ok);filter:drop-shadow(0 0 5px var(--led-ok))}
+.tn-dial text{fill:var(--lcd-lab);font:600 11px var(--f-mono)}
+.tn-note{position:absolute;left:0;right:0;bottom:0;text-align:center;font:700 clamp(56px,19vw,96px)/1 var(--f-mono);color:var(--lcd-off)}
+.tn-note.on{color:var(--led);text-shadow:0 0 14px rgba(242,193,78,.45)}
+.tn-note.on.ok{color:var(--led-ok);text-shadow:0 0 14px rgba(92,194,181,.45)}
+.tn-note sub{font-size:.36em;vertical-align:baseline;margin-left:2px;opacity:.75}
+.tn-strs{display:flex;justify-content:center;gap:clamp(6px,3vw,16px);margin-top:12px}
+.tn-strs span{display:flex;flex-direction:column;align-items:center;gap:3px;font:600 10px var(--f-mono);color:var(--lcd-lab);min-width:22px}
+.tn-strs i{width:9px;height:9px;border-radius:50%;background:var(--lcd-off)}
+.tn-strs em{font-style:normal;font-size:12px;color:var(--lcd-ink);opacity:.55}
+.tn-strs span.on{color:var(--lcd-ink)}
+.tn-strs span.on em{opacity:1}
+.tn-strs span.on i{background:var(--led);box-shadow:0 0 7px var(--led)}
+.tn-strs span.on.ok i{background:var(--led-ok);box-shadow:0 0 7px var(--led-ok)}
+.tn-read{display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:8px;border-top:1px solid var(--lcd-off);font:500 12px var(--f-mono);color:var(--lcd-lab)}
+.tn-read b{color:var(--lcd-ink);font-weight:500}
+@media (prefers-reduced-motion:no-preference){.tn-dial .seg,.tn-note,.tn-strs i,.tn-arrows b{transition:stroke .1s,color .1s,background .1s}}
 .refs{display:flex;gap:6px;flex-wrap:wrap}
 .refs .btn{font-family:var(--f-mono);min-width:48px;justify-content:center}
 .ans{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
@@ -433,6 +474,7 @@ input[type=range]{width:100%;accent-color:var(--accent);min-height:28px}
       <button class="tab" role="tab" id="tab-keys" data-tab="keys"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 3v4.5M12 16.5V21M3 12h4.5M16.5 12H21"/></svg><span>Keys</span></button>
       <button class="tab" role="tab" id="tab-song" data-tab="song"><svg viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg><span>Song</span></button>
       <button class="tab" role="tab" id="tab-practice" data-tab="practice"><svg viewBox="0 0 24 24"><path d="M9 3h6l4 18H5z"/><path d="M12 16l4-9"/><path d="M7.5 15h9"/></svg><span>Practice</span></button>
+      <button class="tab" role="tab" id="tab-tuner" data-tab="tuner"><svg viewBox="0 0 24 24"><path d="M9 3v7a3 3 0 0 0 6 0V3"/><path d="M12 13v8"/></svg><span>Tuner</span></button>
     </nav>
   </header>
 
@@ -482,9 +524,10 @@ input[type=range]{width:100%;accent-color:var(--accent);min-height:28px}
   <section id="p-practice" class="pgrid" hidden>
     <div class="pcard" id="pr-met"></div>
     <div class="pcard" id="pr-strum"></div>
-    <div class="pcard" id="pr-tuner"></div>
     <div class="pcard" id="pr-ear"></div>
   </section>
+
+  <section id="p-tuner" class="tn-page" hidden></section>
 </div>
 
 <div class="modal" id="modal" hidden>
@@ -2009,15 +2052,36 @@ function yin(buf, sr){
   return sr / (tau + (den ? (a - c) / (2 * den) : 0));
 }
 const tun = {on: false, hist: [], miss: 0, last: 0};
-const tunEl = document.getElementById('pr-tuner');
+const tunEl = document.getElementById('p-tuner');
+// the LED arc: 21 segments, 5 cents apart, from -50 to +50 across 120 degrees
+function tunerDial(){
+  const P = (r, k) => { const a = (k - 10) * 6 * Math.PI / 180; return [(150 + r * Math.sin(a)).toFixed(1), (162 - r * Math.cos(a)).toFixed(1)]; };
+  let h = '';
+  for (let k = 0; k <= 20; k++){
+    const mid = k === 10, [x1, y1] = P(mid ? 96 : 106, k), [x2, y2] = P(mid ? 138 : k % 5 ? 126 : 132, k);
+    h += `<line class="seg" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke-width="${mid ? 8 : 5.5}"/>`;
+  }
+  [[0, '−50'], [5, '−25'], [10, '0'], [15, '+25'], [20, '+50']].forEach(([k, t]) => {
+    const [x, y] = P(150, k); h += `<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="middle">${t}</text>`;
+  });
+  return `<svg viewBox="0 0 300 165" aria-hidden="true">${h}</svg>`;
+}
 function renderTuner(msg){
-  tunEl.innerHTML = `<h2>Tuner</h2>
-    <div class="tun-note" id="tn-note">–</div>
-    <div class="meter off" id="tn-meter"><i class="needle" id="tn-needle"></i></div>
-    <div class="tun-read"><span>♭ flat</span><span id="tn-cents"></span><span id="tn-hz"></span><span>sharp ♯</span></div>
-    <p class="small-note" id="tn-str">${msg || (tun.on ? 'Listening. Play one string at a time and let it ring.' : 'Uses your microphone to hear each string. Nothing is recorded or sent anywhere.')}</p>
-    <div class="row-btns"><button class="btn primary" data-tn="go">${tun.on ? '■ Stop tuner' : 'Start tuner'}</button></div>
-    <div><p class="label" style="margin:0 0 6px">Reference tones · ${esc(TUNE.name)}</p>
+  const on = tun.on ? ' on' : '';
+  tunEl.innerHTML = `<div class="tn-pedal">
+      <div class="tn-win">
+        <div class="tn-top"><span class="tn-pow${on}"><i></i>${tun.on ? 'LISTENING' : 'OFF'}</span>
+          <span class="tn-arrows" id="tn-arrows" aria-hidden="true"><b data-a="flat">▶</b><b data-a="sharp">◀</b></span>
+          <span>${esc(TUNE.name.toUpperCase())}</span></div>
+        <div class="tn-dial">${tunerDial()}<div class="tn-note" id="tn-note" aria-live="polite">–</div></div>
+        <div class="tn-strs">${BASE.map((m, i) => `<span><i></i>${6 - i}<em>${prettyNote(noteOct(m).replace(/\d+$/, ''))}</em></span>`).join('')}</div>
+        <div class="tn-read"><span>♭ <b id="tn-cents">–</b></span><span><b id="tn-hz">–</b></span><span>♯</span></div>
+      </div>
+      <p class="tn-msg" id="tn-str">${msg || (tun.on ? 'Listening. Play one string at a time and let it ring.' : 'Uses your microphone to hear each string. Nothing is recorded or sent anywhere.')}</p>
+      <div class="tn-jacks" aria-hidden="true"><span>◂ OUTPUT</span><span>INPUT ◂</span></div>
+      <button class="tn-switch${on}" data-tn="go"><span>${tun.on ? '■ Stop tuner' : 'Start tuner'}</span><small>Chromatic tuner · FW-1</small></button>
+    </div>
+    <div class="pcard"><p class="label" style="margin:0">Reference tones · ${esc(TUNE.name)}</p>
       <div class="refs">${BASE.map((m, i) => `<button class="btn" data-ref="${i}" aria-label="Play string ${6 - i}, ${noteOct(m)}">${prettyNote(noteOct(m))}</button>`).join('')}</div></div>`;
 }
 async function startTuner(){
@@ -2068,17 +2132,24 @@ function tunLoop(){
   showPitch(sorted.length ? sorted[sorted.length >> 1] : 0);
 }
 function showPitch(hz){
-  const note = document.getElementById('tn-note'), meter = document.getElementById('tn-meter');
+  const note = document.getElementById('tn-note');
   if (!note) return;
-  if (!hz){ meter.classList.add('off'); note.textContent = '–'; document.getElementById('tn-cents').textContent = ''; document.getElementById('tn-hz').textContent = ''; return; }
-  const mf = 69 + 12 * Math.log2(hz / 440), m = Math.round(mf), c = Math.round((mf - m) * 100);
+  const segs = tunEl.querySelectorAll('.seg'), strs = tunEl.querySelectorAll('.tn-strs span'), arrows = document.getElementById('tn-arrows');
+  segs.forEach(x => x.classList.remove('on', 'ok')); strs.forEach(x => x.classList.remove('on', 'ok'));
+  arrows.classList.remove('ok'); arrows.querySelectorAll('b').forEach(x => x.classList.remove('on'));
+  if (!hz){ note.classList.remove('on', 'ok'); note.textContent = '–'; document.getElementById('tn-cents').textContent = '–'; document.getElementById('tn-hz').textContent = '–'; return; }
+  const mf = 69 + 12 * Math.log2(hz / 440), m = Math.round(mf), c = Math.round((mf - m) * 100), ok = Math.abs(c) <= 5;
   note.innerHTML = `${prettyNote(SHARP[m % 12])}<sub>${Math.floor(m / 12) - 1}</sub>`;
-  meter.classList.remove('off'); meter.classList.toggle('ok', Math.abs(c) <= 5);
-  document.getElementById('tn-needle').style.left = (50 + c) + '%';   // ±50 cents fill the meter
+  note.classList.add('on'); note.classList.toggle('ok', ok);
+  const seg = segs[Math.max(0, Math.min(20, Math.round(c / 5) + 10))];
+  seg.classList.add('on'); seg.classList.toggle('ok', ok);
+  if (ok) arrows.classList.add('ok');
+  else arrows.querySelector(c < 0 ? '[data-a="flat"]' : '[data-a="sharp"]').classList.add('on');   // ▶ tune up, ◀ tune down
   document.getElementById('tn-cents').textContent = (c > 0 ? '+' : '') + c + ' cents';
   document.getElementById('tn-hz').textContent = hz.toFixed(1) + ' Hz';
   let s = 0; BASE.forEach((b, i) => { if (Math.abs(mf - b) < Math.abs(mf - BASE[s])) s = i; });
   const d = Math.round((mf - BASE[s]) * 100);
+  if (Math.abs(d) < 150){ strs[s].classList.add('on'); strs[s].classList.toggle('ok', Math.abs(d) <= 5); }
   document.getElementById('tn-str').textContent = Math.abs(d) < 150
     ? `String ${6 - s} (${prettyNote(noteOct(BASE[s]))}): ${Math.abs(d) <= 5 ? 'in tune' : d < 0 ? `${-d} cents flat, tune up` : `${d} cents sharp, tune down`}`
     : `Not close to an open string in ${TUNE.name.toLowerCase()} tuning.`;
@@ -2164,7 +2235,7 @@ earEl.addEventListener('click', e => {
     renderEar();
   }
 });
-function renderPractice(){ renderMet(); renderStrum(); renderTuner(); renderEar(); }
+function renderPractice(){ renderMet(); renderStrum(); renderEar(); }
 
 // ---------- settings ----------
 function updateHeader(){
@@ -2212,9 +2283,10 @@ modalBody.addEventListener('change', e => {
 document.getElementById('tune-chip').onclick = () => { renderSettings(); showModal(false, 'Settings'); };
 
 // ---------- tabs ----------
-const rendered = {}, TAB_NAMES = ['finder', 'chords', 'scales', 'keys', 'song', 'practice'];
-const RENDER = {chords: () => { renderLibrary(); renderSearch(); }, scales: renderScales, keys: renderKeys, practice: renderPractice};
+const rendered = {}, TAB_NAMES = ['finder', 'chords', 'scales', 'keys', 'song', 'practice', 'tuner'];
+const RENDER = {chords: () => { renderLibrary(); renderSearch(); }, scales: renderScales, keys: renderKeys, practice: renderPractice, tuner: renderTuner};
 function setTab(name){
+  if (name !== 'tuner' && tun.on) stopTuner();   // frees the microphone and puts playback back to normal
   TAB_NAMES.forEach(n => {
     document.getElementById('p-' + n).hidden = n !== name;
     document.getElementById('tab-' + n).setAttribute('aria-selected', n === name);

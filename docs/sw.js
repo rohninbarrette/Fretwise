@@ -1,5 +1,5 @@
 // Offline support. The cache name changes with every build, so phones pick up new versions.
-const CACHE = 'fretwise-36701f68a0';
+const CACHE = 'fretwise-44875bdac1';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
